@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace: mapper接口的绝对路径-->
+<mapper namespace="com.springmybatis.mapper.UserInfoXmlMapper">
+<!--    id: mapper接口中的方法需要使用这条sql语句的方法名  -->
+<!--    resultType: 方法的返回内容类型 的 全限定路径 -->
+    <select id="getAll" resultType="com.springmybatis.model.Userinfo">
+            select * from userinfo
+    </select>
+<!--    返回自增id -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into userinfo (username,password,age,gender) values (#{Userinfo.username},
+                         #{Userinfo.password}, #{Userinfo.age},#{Userinfo.gender})
+    </insert>
+    <delete id="delete">
+        delete from userinfo where id=#{id}
+    </delete>
+    <update id="update">
+        update userinfo set password=#{password} where username=#{username}
+    </update>
+<!--    xml配置方式 查询时 列名与属性名不一致时的方法:-->
+<!--    1.起别名,和注解方法一样-->
+    <select id="getAll2" resultType="com.springmybatis.model.Userinfo">
+        select username,delete_flag as deleteflag,create_time as createtime,update_time as updatetime from userinfo
+    </select>
+<!--    2.结果映射-->
+<!--    id: resultMap的别名,type:要映射的实体类-->
+    <resultMap id="baseMap" type="com.springmybatis.model.Userinfo">
+        <id column="id" property="id"></id>
+        <result column="delete_flag" property="deleteflag"></result>
+        <result column="create_time" property="createtime"></result>
+        <result column="update_time" property="updatetime"></result>
+    </resultMap>
+    <select id="getAll3" resultMap="baseMap">
+        select * from userinfo
+    </select>
+<!--    多表查询-->
+    <select id="getArtandUser" resultType="com.springmybatis.model.Userinfo">
+        select t1.*,t2.username,t2.password from articleinfo as t1 left join
+            select * from userinfo as t2 where t1.id=t2.id
+    </select>
+
+<!--    #{} 和${}的区别-->
+<!--    # :是占位式的方式填充(通过?进行填充),属于预编译SQL,通过?占位的⽅式,提前对SQL进⾏编译,
+        然后把参数填充到SQL语句中. 会根据参数类型, ⾃动拼接引号 ''
+        $ :是即时填充,会直接进行字符串的替换,一起对SQL进行编译,
+        不会自己加上''如果参数为字符串,需要自己加''
+        $还可能带来 SQL注入的风险 : " ' or 1='1  "
+        应尽量少的使用$ 进行对数据库的操作-->
+    <select id="selectById" resultType="com.springmybatis.model.Userinfo">
+        select * from userinfo where id=#{id}
+    </select>
+    <select id="selectById2" resultType="com.springmybatis.model.Userinfo">
+        select * from userinfo where id=${id}
+    </select>
+
+    <select id="selectByUsername" resultType="com.springmybatis.model.Userinfo">
+        select * from userinfo where username=#{username}
+    </select>
+
+<!--    查询失败  使用$ 字符串无法自动加'',会直接放到SQL语句中 :产生SQL语法错误-->
+<!--    <select id="selectByUsername2" resultType="com.springmybatis.model.Userinfo">-->
+<!--        select * from userinfo where username=${username}-->
+<!--    </select>-->
+
+<!--$的使用场景-->
+<!--    传入的是字符串,但不需要加"" 时,$就是非常有用的,而# 就无法完成需要的SQL语句
+        但也要防止 SQL注入风险-->
+    <select id="selectBySort" resultType="com.springmybatis.model.Userinfo">
+            select * from userinfo order by id ${sort}
+    </select>
+<!-- 使⽤ mysql 的内置函数 concat() 来处理,传入字符串-->
+    <select id="selectBySort2" resultType="com.springmybatis.model.Userinfo">
+        select * from userinfo where username like concat('%','${uaername}','%')
+    </select>
+
+<!--    动态SQL操作-->
+    <insert id="insertCondition">
+        insert into userinfo (username,password,age,gender) values (#{username},#{password},#{age},#{gender})
+    </insert>
+<!--if标签 test: java属性的设置-->
+    <insert id="insertCondition2"> insert into userinfo (
+        <if test="username != null">
+                username
+        </if>
+        <if test="password != null">
+            ,password
+        </if>
+        <if test="age != null">
+            ,age
+        </if>
+        <if test="deleteflag != null">
+            ,delete_flag
+        </if>
+           ) values (
+        <if test="username !=null">
+            #{username}
+        </if>
+        <if test="password != null">
+            ,#{password}
+        </if>
+        <if test="age !=null">
+            ,#{age}
+        </if>
+        <if test="deleteflag != null">
+            , #{deleteflag}
+        </if>
+          )
+    </insert>
+<!--    trim标签:prefix:表⽰整个语句块，以prefix的值作为前缀
+            • suffix：表⽰整个语句块，以suffix的值作为后缀
+•            prefixOverrides：表⽰整个语句块要去除掉的前缀
+•           suffixOverrides：表⽰整个语句块要去除掉的后缀 -->
+    <insert id="insertCondition3"> insert into userinfo
+        <trim prefix="("  suffix=")" prefixOverrides=",">
+            <if test="username != null">
+                    username
+            </if>
+            <if test="password != null">
+                ,password
+            </if>
+            <if test="age != null">
+                ,age
+            </if>
+            <if test="deleteflag != null">
+                ,delete_flag
+            </if>
+        </trim>
+             values
+        <trim prefix="(" suffix=")" prefixOverrides=",">
+            <if test="username !=null">
+                #{username}
+            </if>
+            <if test="password != null">
+                ,#{password}
+            </if>
+            <if test="age !=null">
+                ,#{age}
+            </if>
+            <if test="deleteflag != null">
+                , #{deleteflag}
+            </if>
+        </trim>
+    </insert>
+<!--    where条件-->
+<!--    ⽽且会⾃动去除⼦句的开头的AND或OR -->
+    <select id="selectCondetion" resultType="com.springmybatis.model.Userinfo">
+        select * from userinfo where age=#{age} and gender=#{gender} and delete_flag=#{deleteflag}
+    </select>
+<!--    incude标签使用 -->
+    <!--    通过 <include>  标签在原来抽取的地⽅进⾏引⽤-->
+  <select id="selectCondetion2" resultType="com.springmybatis.model.Userinfo">
+        select <include refid="select"></include>  from userinfo
+         <where>
+             <if test="age!=null">
+                 age=#{age}
+             </if>
+             <if test="gender!=null">
+                 and gender=#{gender}
+             </if>
+             <if test="deleteflag!=null">
+                 and delete_flag=#{deleteflag}
+             </if>
+         </where>
+    </select>
+<!--    这里的where标签 ,也可以这样替代 -->
+    <select id="selectCondetion3" resultType="com.springmybatis.model.Userinfo">
+        select * from userinfo where 1=1
+             <if test="age!=null">
+                 age=#{age}
+             </if>
+             <if test="gender!=null">
+                 and gender=#{gender}
+             </if>
+             <if test="deleteflag!=null">
+                 and delete_flag=#{deleteflag}
+             </if>
+    </select>
+
+<!--    set标签-->
+<!--    动态的在SQL语句中插⼊set关键字，并会删掉额外的逗号. (⽤于update语句中)-->
+    <update id="updateCondition">
+        update userinfo set age=#{age},gender=#{gender},username=#{username} where id=#{id}
+    </update>
+
+    <update id="updateCondition2">
+        update userinfo
+        <set>
+            <if test="age!=null">
+                age=#{age}
+            </if>
+            <if test="gender!=null">
+                ,gender=#{gender}
+            </if>
+            <if test="username!=null">
+                ,username=#{username}
+            </if>
+        </set>
+         where id=#{id}
+    </update>
+<!--    foreach 标签 用于循环 -->
+    <delete id="deleleByIds">
+        delete from userinfo where id in (13,14)
+    </delete>
+  <delete id="deleleByIds2">
+        delete from userinfo where id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+<!--    include标签-->
+<!--    通过 <include>  标签在原来抽取的地⽅进⾏引⽤-->
+<!--    id: 标签名 内容可以是任意的sql片段-->
+    <sql id="select">
+        id,username,password,age,gender,delete_flag,create_time,update_time
+    </sql>
+
+</mapper>

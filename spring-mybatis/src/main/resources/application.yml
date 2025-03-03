@@ -1,0 +1,17 @@
+#配置数据库的连接
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/mybatis_test?characterEncoding=utf8&useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+#    可以借助⽇志, 查看到sql语句的执⾏、执⾏传递的参数以及执⾏结果
+mybatis:
+  # 配置 mybatis xml 的文件路径，在 resources/mapper 创建所有表的 xml 文件
+  mapper-locations: classpath:mapper/**Mapper.xml
+#     # 配置打印 MyBatis日志 查看到 sql语句的执⾏、执⾏传递的参数 以及执⾏结果
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true #配置驼峰自动转换
+

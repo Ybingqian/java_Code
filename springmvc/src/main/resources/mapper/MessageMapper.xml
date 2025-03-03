@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace: mapper接口的绝对路径-->
+<mapper namespace="com.springmvc.mapper.MessageMapper">
+    <insert id="insertMessage">
+        insert into message_info
+        <trim suffix=")" prefix="(" suffixOverrides=",">
+            <if test="from!=null">
+                `from`,
+            </if>
+            <if test="to!=null">
+                `to`,
+            </if>
+            <if test="message!=null">
+                `message`
+            </if>
+        </trim>
+        values
+        <trim suffix=")" prefix="(" suffixOverrides="，">
+            <if test="from!=null">
+                #{from},
+            </if>
+            <if test="to!=null">
+                #{to},
+            </if>
+            <if test="message!=null">
+                #{message}
+            </if>
+        </trim>
+
+    </insert>
+</mapper>

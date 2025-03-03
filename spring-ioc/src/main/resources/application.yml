@@ -1,0 +1,55 @@
+# yml文件: Yet Another Markup Language 翻译成中⽂就是“另⼀种标记语⾔.
+# yml文件是一种树形结构的配置文件,以"key: val"的形式设置 key和val之间用 :+空格 进行分隔
+# key中不允许出现大写字母,只允许有小写字母,数字,-,要以字母开头
+# .yml文件连接数据库配置
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/test?characterEncoding=utf8&SSL=false
+    username: root
+    password: root
+# .properties文件中的 "."在.yml配置文件中是以  ":+换行"  组成的
+# 可以放字符串
+String.value: hello
+#存放整数
+int.val: true
+#浮点数
+double.val: 3.14
+#null  ~代表空
+null.val: ~
+#空字符串  可以什么都不写,为了好看,可以加上一对单引号
+String.val: ''
+
+mykey:
+  key1: 10
+  key2: hello
+
+#  value值加单 双引号:
+#  单引号会进行特殊符号的转义 \n:换行的意思 ,加上'',将\n就转成普通字符串了
+#  双引号不会进行特殊符号的转义,加上""的字符串,\n还是换行的意思,
+String:
+  str1: hello \n spring boot
+  str2: 'hello \n spring boot  '
+  str3: "hello \n spring boot"
+
+# 配置对象
+#  * 使用@ConfigurationProperties注解 读取对象
+
+student:
+  id: 1
+  name: zhangsan
+  score: 100
+
+#  配置List集合  内容前面的 "-和空格" 不能省略
+#  * 使用@ConfigurationProperties注解 读取对象
+list:
+  name:
+    - mysql
+    - sql
+    - sqlserver
+
+# 配置Map
+mymap:
+  map:
+    k1: Zhangsan
+    k2: Lisi
+    k3: Wangwi
